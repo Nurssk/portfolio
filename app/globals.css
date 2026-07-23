@@ -138,6 +138,9 @@ button{font-family:inherit}
 .win-body .lbl{font-weight:700;margin-bottom:4px}
 .win-body .par{opacity:.85;margin-bottom:14px}
 .win-body .hero{width:100%;height:180px;border-radius:12px;margin-bottom:16px;overflow:hidden}
+.photo-view{display:flex;flex-direction:column;align-items:center}
+.photo-full{width:100%;height:auto;max-height:360px;border-radius:12px;display:block;object-fit:contain}
+.photo-placeholder{width:100%;height:280px;border-radius:12px;margin-bottom:12px}
 .tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .tag{font-family:var(--font-mono),monospace;font-size:10px;letter-spacing:1px;padding:4px 8px;border-radius:6px;background:var(--iconLabelBg)}
 .links{display:flex;gap:12px} .links a,.link{color:var(--accent);font-weight:600;font-size:12.5px;text-decoration:none}
@@ -234,6 +237,12 @@ a.folder-file{text-decoration:none;color:inherit}
   .ios-foot{text-align:center;font-family:var(--font-mono),monospace;font-size:9.5px;
     color:rgba(255,255,255,.6);margin-top:14px}
   .win{inset:16px!important;left:16px!important;top:16px!important;width:auto!important;height:auto!important;border-radius:16px}
+  .win.photo-win{inset:auto!important;left:50%!important;top:50%!important;
+    width:min(82vw,320px)!important;height:auto!important;max-height:78vh;
+    transform:translate(-50%,-50%);border-radius:18px}
+  .photo-win .win-body{padding:10px;overflow:hidden}
+  .photo-full{width:auto;max-width:100%;max-height:58vh;border-radius:12px}
+  .photo-placeholder{width:100%;height:220px;margin-bottom:0}
 }
 @media(max-width:374px){
   .ios-widgets{gap:10px}

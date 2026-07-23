@@ -12,9 +12,11 @@ export default function WindowView({
   onFocus: () => void;
   onTitleDown: (e: React.MouseEvent) => void;
 }) {
+  const windowClassName = "win" + (win.id.startsWith("photo") ? " photo-win" : "");
+
   return (
     <div
-      className="win"
+      className={windowClassName}
       role="dialog"
       aria-label={win.title}
       style={{ left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.z }}
@@ -38,12 +40,12 @@ function WindowBody({ id, openWindow }: { id: string; openWindow: (id: string, t
     const p = photoById(id);
     if (!p) return null;
     return (
-      <div>
+      <div className="photo-view">
         {p.img ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.img} alt={p.caption || id} style={{ width: "100%", borderRadius: 12, display: "block" }} draggable={false} />
+          <img className="photo-full" src={p.img} alt={p.caption || id} draggable={false} />
         ) : (
-          <div style={{ width: "100%", height: 280, borderRadius: 12, marginBottom: 12, background: p.grad }} />
+          <div className="photo-placeholder" style={{ background: p.grad }} />
         )}
         {p.caption && <div style={{ fontWeight: 700, marginTop: 12 }}>{p.caption}</div>}
         {p.location && <div style={{ fontFamily: "var(--font-mono),monospace", fontSize: 11, opacity: 0.55, marginTop: 4 }}>✛ {p.location}</div>}
