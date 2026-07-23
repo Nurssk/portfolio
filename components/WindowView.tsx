@@ -12,7 +12,10 @@ export default function WindowView({
   onFocus: () => void;
   onTitleDown: (e: React.MouseEvent) => void;
 }) {
-  const windowClassName = "win" + (win.id.startsWith("photo") ? " photo-win" : "");
+  const isFolderWindow = win.id === "certificates" || win.id === "projects" || !!projectById(win.id);
+  const windowClassName = "win"
+    + (win.id.startsWith("photo") ? " photo-win" : "")
+    + (isFolderWindow ? " folder-win" : "");
 
   return (
     <div
