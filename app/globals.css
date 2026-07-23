@@ -1,0 +1,239 @@
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--font-inter),system-ui,sans-serif;overflow:hidden;background:#274b8f}
+a{color:inherit}
+button{font-family:inherit}
+
+/* ---- theme variables live on .root (set inline by React) ---- */
+.root{
+  --sky1:#cfe8ff; --sky2:#e7f4ff; --sky3:#f7fbff;
+  --panel:rgba(255,255,255,.55); --panelBorder:rgba(255,255,255,.6);
+  --text:#1c2b3a; --accent:#3b7fc4; --dot:rgba(28,43,58,.5);
+  --iconLabelBg:rgba(255,255,255,.55); --gameBg:#e7f4ff;
+  position:fixed; inset:0; overflow:hidden;
+}
+
+@keyframes lockfade{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.06)}}
+@keyframes winopen{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ---- lock screen ---- */
+.lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;color:#fff;overflow:hidden;
+  background:linear-gradient(180deg,#274b8f 0%,#4a76c2 45%,#8fb3de 100%)}
+.lock.closing{animation:lockfade .5s ease forwards;pointer-events:none}
+/* lock-screen photo wallpaper: drop your image at public/desktop-bg.jpg */
+.lock-photo{position:absolute;inset:0;z-index:0;background:url('/desktop-bg.jpg') center/cover no-repeat}
+/* dark scrim so the white clock + name stay legible over any photo */
+.lock-scrim{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(18,34,74,.55) 0%,rgba(18,34,74,.32) 45%,rgba(24,42,92,.6) 100%)}
+/* keep all foreground content above the photo + scrim */
+.lock > *:not(.lock-photo):not(.lock-scrim){position:relative;z-index:1}
+.lock-date{margin-top:44px;font-size:26px;font-weight:600}
+.lock-time{font-weight:700;font-size:130px;letter-spacing:-3px;line-height:1.1;margin-top:4px}
+@media(max-width:600px){.lock-time{font-size:76px}}
+.lock-foot{display:flex;flex-direction:column;align-items:center;margin-bottom:48px;text-align:center}
+.lock-name{font-size:24px;font-weight:700}
+.lock-role{font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:6px}
+.lock-btn{margin-top:22px;padding:11px 26px;border-radius:999px;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);font-family:var(--font-mono),monospace;font-size:12px;letter-spacing:2px}
+.lock-hint{margin-top:16px;font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:1.5px;color:rgba(255,255,255,.45)}
+
+/* ---- desktop ---- */
+.desktop{position:absolute;inset:0;overflow:hidden;color:var(--text);
+  background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%);transition:background .4s ease}
+/* per-theme photo wallpaper (set inline in Desktop.tsx) */
+.desk-photo{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;
+  background-repeat:no-repeat;transition:background-image .4s ease}
+/* light theme-tinted scrim so frosted panels + labels stay legible over the photo */
+.desk-scrim{position:absolute;inset:0;z-index:0;pointer-events:none;transition:background .4s ease;
+  background:linear-gradient(180deg,var(--sky1),var(--sky3));opacity:.18}
+.grid-overlay{position:absolute;inset:0;pointer-events:none;opacity:.3;
+  background-image:radial-gradient(circle,var(--dot) 1px,transparent 1px);background-size:28px 28px}
+
+.menubar{position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 18px;z-index:900;
+  background:var(--panel);backdrop-filter:blur(18px);border-bottom:1px solid var(--panelBorder)}
+.menubar .left{display:flex;align-items:center;gap:20px}
+.menubar .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}
+.menubar nav{display:flex;align-items:center;gap:16px;font-size:12.5px;font-weight:500}
+.menubar nav span{cursor:pointer;opacity:.8}
+.menubar nav span:hover{opacity:1}
+.menubar .right{display:flex;align-items:stretch;gap:14px;font-size:12px}
+/* browser-style tabs — sit flush on the menu bar's bottom edge */
+.tabs{display:flex;align-items:flex-end;gap:3px}
+.tab{display:flex;align-items:center;gap:6px;margin-bottom:-1px;padding:6px 13px;
+  border:1px solid var(--panelBorder);border-bottom:none;border-radius:9px 9px 0 0;
+  background:rgba(255,255,255,.14);color:inherit;text-decoration:none;
+  font-size:12px;font-weight:500;line-height:1;white-space:nowrap;opacity:.85;
+  transition:background .15s ease,opacity .15s ease}
+.tab:hover{background:rgba(255,255,255,.32);opacity:1}
+.tab svg{width:13px;height:13px;flex-shrink:0}
+.menubar .right .clock{align-self:center}
+.clock{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:1px;opacity:.65;margin-left:6px}
+
+.card{background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--panelBorder);border-radius:14px;padding:14px}
+.avail{position:absolute;top:60px;left:20px;width:210px;z-index:5}
+.avail .status{display:flex;align-items:center;gap:7px;font-family:var(--font-mono),monospace;font-size:10px;letter-spacing:1.5px}
+.dot-live{width:8px;height:8px;border-radius:50%;background:#3ecf6e;box-shadow:0 0 0 3px rgba(62,207,110,.2);animation:blink 2.4s ease-in-out infinite}
+.avail p{font-size:12px;line-height:1.5;margin:8px 0 0;opacity:.85}
+
+.icon{position:absolute;width:108px;min-height:92px;display:flex;flex-direction:column;align-items:center;gap:7px;
+  cursor:grab;user-select:none;z-index:3;padding:8px 6px;border-radius:10px}
+.icon:hover{background:rgba(255,255,255,.18);transform:translateY(-2px)}
+.icon:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.icon .glyph{width:68px;height:52px;display:flex;align-items:center;justify-content:center;
+  font-size:42px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.15));line-height:1}
+.icon .thumb{width:68px;height:52px;border-radius:7px;overflow:hidden;border:2px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.18);flex-shrink:0}
+.icon .label{display:block;max-width:96px;font-family:var(--font-mono),monospace;font-size:10.5px;line-height:1.2;
+  background:var(--iconLabelBg);padding:3px 6px;border-radius:4px;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.widgets{position:absolute;top:60px;right:20px;width:236px;display:flex;flex-direction:column;gap:12px;z-index:5}
+.wlabel{font-family:var(--font-mono),monospace;font-size:10px;letter-spacing:1.5px;opacity:.6}
+.wp-row{display:flex;gap:8px;margin-top:10px}
+.wp{flex:1;height:36px;border-radius:8px;cursor:pointer;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:14px}
+.wp:hover{transform:scale(1.06)}
+/* iOS-style weather */
+.w-city{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px}
+.w-city svg{opacity:.9;flex-shrink:0}
+.w-temp{font-size:48px;font-weight:300;line-height:1.04;letter-spacing:-1.5px;margin-top:2px}
+.w-icon{font-size:18px;line-height:1;margin-top:10px}
+.w-cond{font-size:13px;font-weight:600;margin-top:6px}
+.w-hilo{display:flex;gap:14px;font-size:12.5px;opacity:.8;margin-top:2px}
+.w-secondary{display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--panelBorder);margin-top:14px;padding-top:10px}
+.w-secondary .t{font-size:12.5px;font-weight:600} .w-secondary .s{font-size:10.5px;opacity:.6}
+.w-sec-deg{font-size:18px;font-weight:700}
+.np-head{display:flex;gap:10px;align-items:center}
+.np-art{width:44px;height:44px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--sky3))}
+.np-meta{min-width:0}
+.np-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-artist{font-size:10.5px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-ctrl{display:flex;justify-content:center;gap:16px;margin-top:10px}
+.np-ctrl button{background:none;border:none;cursor:pointer;font-size:14px;color:var(--text)}
+.np-ctrl .play{background:var(--accent);color:#fff;width:30px;height:30px;border-radius:50%;font-size:12px}
+.bricks-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bricks-wrap{position:relative;width:100%;height:150px;border-radius:8px;overflow:hidden;background:var(--gameBg)}
+.bricks-wrap canvas{width:100%;height:100%;display:block;cursor:none}
+.bricks-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.28);color:#fff;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:1px;cursor:pointer;text-align:center;padding:10px}
+.awards-row{display:flex;gap:10px;margin-top:10px}
+.award{flex:1;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:2px solid var(--panelBorder);background:var(--iconLabelBg)}
+.award:hover{transform:scale(1.08)}
+.award.on{background:var(--accent)}
+
+/* ---- windows ---- */
+.win{position:absolute;z-index:10;background:var(--panel);backdrop-filter:blur(22px);
+  border:1px solid var(--panelBorder);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.22);animation:winopen .26s cubic-bezier(.2,.9,.25,1);color:var(--text)}
+.win-bar{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--panelBorder);flex-shrink:0;cursor:grab}
+.tl{width:12px;height:12px;border-radius:50%}
+.tl.r{background:#ff5f57;cursor:pointer} .tl.y{background:#febc2e} .tl.g{background:#28c840}
+.win-title{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:1px;opacity:.65;margin-left:8px}
+.win-body{flex:1;overflow-y:auto;padding:22px;font-size:13.5px;line-height:1.6}
+.win-body h3{margin:0 0 4px;font-size:22px;font-weight:800}
+.win-body .meta{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:1.5px;opacity:.55;margin-bottom:4px}
+.win-body .lbl{font-weight:700;margin-bottom:4px}
+.win-body .par{opacity:.85;margin-bottom:14px}
+.win-body .hero{width:100%;height:180px;border-radius:12px;margin-bottom:16px;overflow:hidden}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tag{font-family:var(--font-mono),monospace;font-size:10px;letter-spacing:1px;padding:4px 8px;border-radius:6px;background:var(--iconLabelBg)}
+.links{display:flex;gap:12px} .links a,.link{color:var(--accent);font-weight:600;font-size:12.5px;text-decoration:none}
+/* folder window: file icons you click to open in their own window */
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:18px 12px}
+.folder-file{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;
+  padding:8px 4px;border-radius:10px}
+.folder-file:hover{background:rgba(255,255,255,.16)}
+.folder-file .thumb-box{width:100%;aspect-ratio:4/3;border-radius:6px;overflow:hidden;
+  border:2px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.18);background:#fff}
+.folder-file .thumb-box img{width:100%;height:100%;object-fit:cover;display:block}
+.folder-file .fname{font-family:var(--font-mono),monospace;font-size:10.5px;text-align:center;
+  background:var(--iconLabelBg);padding:2px 6px;border-radius:4px;max-width:100%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.folder-file{text-decoration:none;color:inherit}
+.folder-file .folder-glyph{font-size:46px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2))}
+.folder-file .file-ico{width:100%;aspect-ratio:1;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,.22)}
+.listrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--panelBorder)}
+.listrow .st{font-family:var(--font-mono),monospace;font-size:10.5px;opacity:.6;align-self:center}
+.note{font-family:var(--font-caveat),cursive;font-size:22px;line-height:1.5;color:#3a3120}
+
+/* ---- dock ---- */
+.dock-wrap{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;z-index:850}
+.dock-label{font-family:var(--font-mono),monospace;font-size:9px;letter-spacing:2px;opacity:.45}
+.dock{display:flex;align-items:flex-end;gap:10px;background:var(--panel);backdrop-filter:blur(20px);border:1px solid var(--panelBorder);border-radius:20px;padding:10px 14px}
+.app{width:44px;height:44px;border-radius:11px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;overflow:hidden;transition:transform .18s cubic-bezier(.2,.9,.25,1)}
+.app img{width:100%;height:100%;object-fit:contain;display:block}
+.app:hover{transform:scale(1.35) translateY(-8px)}
+.dock .sep{width:1px;height:30px;background:var(--panelBorder);margin:0 2px}
+.trash{width:44px;height:44px;border-radius:11px;background:rgba(120,120,130,.35);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .18s cubic-bezier(.2,.9,.25,1)}
+.trash:hover{transform:scale(1.3) translateY(-6px)}
+.foot{position:absolute;bottom:10px;font-family:var(--font-mono),monospace;font-size:9.5px;opacity:.4}
+.foot.l{left:16px} .foot.r{right:16px}
+
+/* ---- mobile ---- */
+.mobile{display:none}
+@media(max-width:819px){
+  body{overflow:auto}
+  .desktop-only{display:none!important}
+  /* ---- iPhone-style home screen ---- */
+  .mobile{display:block;position:absolute;inset:0;overflow-y:auto;color:var(--text)}
+  .ios-bg{position:fixed;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat}
+  .ios-scrim{position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(0,0,0,.22)}
+  .ios{position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 16px)}
+  .ios-widgets{display:flex;align-items:stretch;gap:12px;margin-bottom:22px}
+  /* the shared weather card, sized like an iOS widget */
+  .ios-widgets .card{border-radius:20px;padding:16px;max-width:190px;flex:1 1 190px}
+  .ios-socials{display:flex;flex-direction:column;gap:10px;min-width:116px;flex:0 0 116px}
+  .ios-social{flex:1;min-height:58px;border-radius:18px;padding:12px;
+    display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;
+    background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(255,255,255,.12));
+    border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(18px) saturate(1.2);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 8px 18px rgba(0,0,0,.2)}
+  .ios-social svg{width:20px;height:20px;flex-shrink:0}
+  .ios-social span{font-size:12px;font-weight:700;line-height:1;white-space:nowrap}
+  .ios-social:active{transform:scale(.96)}
+
+  .ios-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 12px}
+  .ios-app{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+  .ios-app:active{transform:scale(.93)}
+  .ios-app .tile{width:100%;aspect-ratio:1;border-radius:16px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,.28)}
+  .ios-app .tile.folder-tile{overflow:visible;box-shadow:none;background:transparent}
+  .ios-app .tile img{width:100%;height:100%;object-fit:cover;display:block}
+  .ios-app .lbl{font-size:10.5px;color:#fff;text-align:center;line-height:1.2;
+    text-shadow:0 1px 3px rgba(0,0,0,.6);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-folder{position:relative;width:100%;height:100%;border-radius:22px;
+    display:flex;align-items:flex-start;justify-content:flex-start;padding:16%;
+    background:linear-gradient(145deg,rgba(255,255,255,.42),rgba(255,255,255,.18));
+    border:1px solid rgba(255,255,255,.46);backdrop-filter:blur(18px) saturate(1.25);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 24px rgba(0,0,0,.18)}
+  .folder-mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7%;width:62%;height:62%}
+  .folder-mini{border-radius:7px;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    font-size:8.5px;font-weight:800;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .folder-mini img{width:100%;height:100%;object-fit:cover;display:block}
+  .folder-mini span{transform:scale(.92);white-space:nowrap}
+  .folder-badge{position:absolute;right:-12%;top:-13%;min-width:42%;height:32%;
+    padding:0 9%;border-radius:999px;background:#ff3347;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;
+    line-height:1;box-shadow:0 5px 14px rgba(153,18,31,.32);border:1px solid rgba(255,255,255,.28)}
+
+  .ios-dock{margin-top:auto;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:nowrap;
+    background:rgba(255,255,255,.16);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.22);
+    border-radius:26px;padding:10px 12px}
+  .ios-dock-app{width:42px;height:42px;flex-shrink:0;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .ios-dock-app img{width:100%;height:100%;object-fit:contain;display:block}
+  .ios-dock-app span{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    border-radius:12px;font-weight:700;font-size:13px}
+  .ios-foot{text-align:center;font-family:var(--font-mono),monospace;font-size:9.5px;
+    color:rgba(255,255,255,.6);margin-top:14px}
+  .win{inset:16px!important;left:16px!important;top:16px!important;width:auto!important;height:auto!important;border-radius:16px}
+}
+@media(max-width:374px){
+  .ios-widgets{gap:10px}
+  .ios-socials{min-width:96px;flex-basis:96px}
+  .ios-social{padding:10px;gap:8px}
+  .ios-social span{font-size:11px}
+}

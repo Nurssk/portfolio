@@ -1,0 +1,12 @@
+/node_modules
+/.next
+/.next-*
+/out
+/build
+/output
+/.playwright-cli
+*.tsbuildinfo
+.DS_Store
+.DS_Store?
+.env*.local
+.vercel
