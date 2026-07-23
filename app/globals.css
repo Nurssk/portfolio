@@ -19,7 +19,7 @@ button{font-family:inherit}
 
 /* ---- lock screen ---- */
 .lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-  cursor:pointer;color:#fff;overflow:hidden;
+  cursor:pointer;color:#fff;overflow:hidden;touch-action:none;
   background:linear-gradient(180deg,#274b8f 0%,#4a76c2 45%,#8fb3de 100%)}
 .lock.closing{animation:lockfade .5s ease forwards;pointer-events:none}
 /* lock-screen photo wallpaper: drop your image at public/desktop-bg.jpg */
@@ -38,6 +38,7 @@ button{font-family:inherit}
 .lock-btn{margin-top:22px;padding:11px 26px;border-radius:999px;background:rgba(255,255,255,.12);
   border:1px solid rgba(255,255,255,.25);font-family:var(--font-mono),monospace;font-size:12px;letter-spacing:2px}
 .lock-hint{margin-top:16px;font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:1.5px;color:rgba(255,255,255,.45)}
+.mobile-unlock-copy{display:none}
 
 /* ---- desktop ---- */
 .desktop{position:absolute;inset:0;overflow:hidden;color:var(--text);
@@ -176,6 +177,9 @@ a.folder-file{text-decoration:none;color:inherit}
 .mobile{display:none}
 @media(max-width:819px){
   body{overflow:auto}
+  .lock{cursor:default}
+  .desktop-unlock-copy{display:none}
+  .mobile-unlock-copy{display:inline}
   .desktop-only{display:none!important}
   /* ---- iPhone-style home screen ---- */
   .mobile{display:block;position:absolute;inset:0;overflow-y:auto;color:var(--text)}
